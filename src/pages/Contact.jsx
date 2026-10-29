@@ -5,7 +5,9 @@ import { GiRotaryPhone } from "react-icons/gi";
 import { FaWhatsapp } from 'react-icons/fa'
 import PageSEO from '../components/PageSEO'
 import SmoothParagraph from '../components/SmoothParagraph'
-import { submitContact } from '../api'
+import { submitWeb3FormFromForm } from '../api'
+
+const WEB3FORMS_ACCESS_KEY_CONTACT = '99fd2216-54e7-42ba-979f-f031cfcb7d3c'
 
 const CONTACT_CARDS = [
   {
@@ -53,6 +55,19 @@ function Contact() {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', property_location: '', comment: '' })
   const [formLoading, setFormLoading] = useState(false)
   const [formFeedback, setFormFeedback] = useState(null)
+
+  const doSubmit = async () => {
+    if (!formRef.current) return
+    try {
+      await submitWeb3FormFromForm(formRef.current)
+      setFormFeedback({ type: 'success', text: 'Thank you! Your message has been sent. We will get back to you soon. A confirmation email has been sent to you.' })
+      setFormData({ name: '', phone: '', email: '', property_location: '', comment: '' })
+    } catch (err) {
+      setFormFeedback({ type: 'error', text: err.message || 'Something went wrong. Please try again.' })
+    } finally {
+      setFormLoading(false)
+    }
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -232,6 +247,9 @@ function Contact() {
               Contact Us
             </h2>
             <form
+              ref={formRef}
+              action="https://api.web3forms.com/submit"
+              method="POST"
               className="space-y-6"
               onSubmit={async (e) => {
                 e.preventDefault()
@@ -241,23 +259,10 @@ function Contact() {
                   return
                 }
                 setFormLoading(true)
-                try {
-                  await submitContact({
-                    name: formData.name.trim(),
-                    phone: formData.phone.trim(),
-                    email: formData.email.trim(),
-                    property_location: formData.property_location.trim(),
-                    message: formData.comment.trim(),
-                  })
-                  setFormFeedback({ type: 'success', text: 'Thank you! Your message has been sent. We will get back to you soon. A confirmation email has been sent to you.' })
-                  setFormData({ name: '', phone: '', email: '', property_location: '', comment: '' })
-                } catch (err) {
-                  setFormFeedback({ type: 'error', text: err.message || 'Something went wrong. Please try again.' })
-                } finally {
-                  setFormLoading(false)
-                }
+                await doSubmit()
               }}
             >
+              <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY_CONTACT} />
               {formFeedback && (
                 <p className={`rounded-xl px-4 py-2 text-sm ${formFeedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                   {formFeedback.text}
@@ -267,6 +272,7 @@ function Contact() {
                 <div>
                   <input
                     type="text"
+                    name="name"
                     placeholder="Name Of The Owner"
                     value={formData.name}
                     onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
@@ -276,6 +282,7 @@ function Contact() {
                 <div>
                   <input
                     type="tel"
+                    name="phone"
                     placeholder="Phone Number"
                     value={formData.phone}
                     onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
@@ -287,6 +294,7 @@ function Contact() {
                 <div>
                   <input
                     type="email"
+                    name="email"
                     placeholder="Email Address"
                     value={formData.email}
                     onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
@@ -296,6 +304,7 @@ function Contact() {
                 <div>
                   <input
                     type="text"
+                    name="property_location"
                     placeholder="Property Location"
                     value={formData.property_location}
                     onChange={(e) => setFormData((p) => ({ ...p, property_location: e.target.value }))}
@@ -306,6 +315,7 @@ function Contact() {
               <div>
                 <textarea
                   rows={6}
+                  name="message"
                   placeholder="Leave Your Comment"
                   value={formData.comment}
                   onChange={(e) => setFormData((p) => ({ ...p, comment: e.target.value }))}

@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import SmoothParagraph from './SmoothParagraph'
-import { submitEnquiry } from '../api'
+import { submitWeb3FormFromForm } from '../api'
+
+const WEB3FORMS_ACCESS_KEY_QUICK_ENQUIRY = '8a38f033-cab4-49fd-9764-6398c3caff86'
 
 function QuickEnquiryModal({ onClose: onEnquiryClose }) {
+  const formRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
   const [hasShown, setHasShown] = useState(false)
   const [name, setName] = useState('')
@@ -28,16 +31,10 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
     onEnquiryClose?.()
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setFeedback(null)
-    if (!name.trim() || !email.trim()) {
-      setFeedback({ type: 'error', text: 'Name and email are required.' })
-      return
-    }
-    setLoading(true)
+  const doSubmit = async () => {
+    if (!formRef.current) return
     try {
-      await submitEnquiry({ name: name.trim(), email: email.trim(), phone: phone.trim(), message: message.trim() })
+      await submitWeb3FormFromForm(formRef.current)
       setFeedback({ type: 'success', text: 'Thank you! We have received your enquiry and will get back to you soon. A confirmation email has been sent to you.' })
       setName('')
       setEmail('')
@@ -49,6 +46,17 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setFeedback(null)
+    if (!name.trim() || !email.trim()) {
+      setFeedback({ type: 'error', text: 'Name and email are required.' })
+      return
+    }
+    setLoading(true)
+    await doSubmit()
   }
 
   if (!isOpen) return null
@@ -80,9 +88,13 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
 
         {/* Form body */}
         <form
+          ref={formRef}
+          action="https://api.web3forms.com/submit"
+          method="POST"
           className="p-4 sm:p-5 md:p-6"
           onSubmit={handleSubmit}
         >
+          <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY_QUICK_ENQUIRY} />
           <SmoothParagraph className="mb-4 sm:mb-5 text-sm sm:text-base text-slate-600">
             Fill out the form below and we&apos;ll get back to you soon!
           </SmoothParagraph>
@@ -96,6 +108,7 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
           <div className="space-y-3 sm:space-y-4">
             <input
               type="text"
+              name="name"
               placeholder="Your Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -103,6 +116,7 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
             />
             <input
               type="email"
+              name="email"
               placeholder="Your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -110,6 +124,7 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
             />
             <input
               type="tel"
+              name="phone"
               placeholder="Phone Number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -117,6 +132,7 @@ function QuickEnquiryModal({ onClose: onEnquiryClose }) {
             />
             <textarea
               rows={3}
+              name="message"
               placeholder="Your Message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}

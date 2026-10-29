@@ -21,17 +21,47 @@ const HERO_IMAGES = [
 
 const HOME_JSON_LD = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'JAZ Builders and Promoters',
+  '@type': ['Organization', 'LocalBusiness'],
+  name: 'Jaz Builders Group',
+  alternateName: 'JAZ Builders and Promoters',
   url: 'https://jazbuildersgroup.com',
-  logo: 'https://res.cloudinary.com/dz8q7z6vq/image/upload/v1769839658/LOGO_1_wfi62m.webp',
-  description: 'Construction, PEB, Real Estate, Architectural Design & Project Consulting in Tenkasi.',
-  address: { '@type': 'PostalAddress', addressLocality: 'Tenkasi', addressRegion: 'Tamil Nadu', postalCode: '627811' },
-  contactPoint: { '@type': 'ContactPoint', telephone: '+91-93639-33050', email: 'info@jazbuildersgroup.com', contactType: 'customer service' },
+  logo: 'https://jazbuildersgroup.com/image/logo.png',
+  image: 'https://res.cloudinary.com/dz8q7z6vq/image/upload/v1769839658/LOGO_1_wfi62m.webp',
+  description: 'JAZ Builders offers a comprehensive range of construction services including building construction, architecture design, building renovation, and more. Trusted builders in Tenkasi, Tamil Nadu.',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '69/1, Kattubava Pallivasal Street',
+    addressLocality: 'Tenkasi',
+    addressRegion: 'Tamil Nadu',
+    postalCode: '627811',
+    addressCountry: 'IN',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 8.9604,
+    longitude: 77.3085,
+  },
+  areaServed: [{ '@type': 'State', name: 'Tamil Nadu' }, { '@type': 'City', name: 'Tenkasi' }],
+  contactPoint: [
+    { '@type': 'ContactPoint', telephone: '+91-93639-33050', contactType: 'customer service', areaServed: 'IN' },
+    { '@type': 'ContactPoint', telephone: '+91-94863-22351', contactType: 'customer service' },
+  ],
+  email: 'info@jazbuildersgroup.com',
+  openingHoursSpecification: { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '18:00' },
 }
 
 function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Preload first hero image for faster LCP (helps Performance score)
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.as = 'image'
+    link.href = HERO_IMAGES[0]
+    document.head.appendChild(link)
+    return () => { if (link.parentNode) link.parentNode.removeChild(link) }
+  }, [])
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -43,9 +73,10 @@ function Home() {
   return (
     <>
       <PageSEO
+        fullTitle="JAZ Builders and Promoters: Home"
         title="Home"
-        description="JAZ Builders and Promoters – Construction, PEB, Real Estate, Architectural Design & Project Consulting in Tenkasi. Quality construction and execution-ready projects."
-        keywords="JAZ Builders, construction Tenkasi, PEB, real estate, architectural design, project consulting, Tenkasi builders"
+        description="JAZ Builders offers a comprehensive range of construction services including building construction, architecture design, building renovation, building ...Read more"
+        keywords="JAZ Builders and Promoters, building construction, architecture design, building renovation, construction Tenkasi, real estate, Tenkasi builders"
         jsonLd={HOME_JSON_LD}
       />
       <section
@@ -58,14 +89,13 @@ function Home() {
           {HERO_IMAGES.map((url, index) => (
             <div
               key={url}
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 ease-out"
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-scroll transition-opacity duration-700 ease-out md:bg-fixed"
               style={{
                 backgroundImage: `url('${url}')`,
-                backgroundAttachment: window.innerWidth > 768 ? 'fixed' : 'scroll',
                 opacity: index === currentImageIndex ? 1 : 0,
                 pointerEvents: 'none',
               }}
-              aria-hidden
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -105,10 +135,11 @@ function Home() {
               
               <Link
                 to="/contact"
-                className="inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-md border border-white/80 bg-black/10 px-6 py-3 text-base font-medium lowercase text-white transition-colors duration-200 ease-out hover:bg-white/10 sm:w-auto sm:px-7 sm:text-lg"
+                className="inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-md border border-white/80 bg-black/10 px-6 py-3 text-base font-medium lowercase text-white transition-colors duration-200 ease-out hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 sm:w-auto sm:px-7 sm:text-lg"
+                aria-label="Get started - go to contact"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white text-white">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white text-white" aria-hidden="true">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -122,11 +153,12 @@ function Home() {
 
               <Link
                 to="/project"
-                className="inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-md px-6 py-3 text-base font-medium text-[#127f83] transition-opacity duration-200 ease-out hover:opacity-90 sm:w-auto sm:px-7 sm:text-lg"
+                className="inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-md px-6 py-3 text-base font-medium text-[#0d5c5f] transition-opacity duration-200 ease-out hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0d5c5f] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 sm:w-auto sm:px-7 sm:text-lg"
                 style={{ backgroundColor: '#8FD8D3' }}
+                aria-label="View projects"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded bg-white/25">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span className="flex h-7 w-7 items-center justify-center rounded bg-white/25" aria-hidden="true">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

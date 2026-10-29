@@ -1,0 +1,16 @@
+# JAZ Builders and Promoters - https://jazbuildersgroup.com
+# Allow all crawlers for fast indexing
+User-agent: *
+Allow: /
+
+# Google: index everything (explicit for fast discovery)
+User-agent: Googlebot
+Allow: /
+User-agent: Googlebot-Image
+Allow: /
+
+# Sitemap - submit in Google Search Console: https://search.google.com/search-console
+Sitemap: https://jazbuildersgroup.com/sitemap.xml
+
+# Preferred host (live site)
+Host: https://jazbuildersgroup.com

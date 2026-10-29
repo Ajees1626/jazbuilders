@@ -198,22 +198,33 @@ function Footer() {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col gap-3 border-t border-white/20 pt-6 text-xs text-white/85 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs">
+          <div className="mt-10 grid grid-cols-1 items-center gap-3 border-t border-white/20 pt-6 text-center text-xs text-white/85 sm:grid-cols-3 sm:gap-4">
+            <p className="sm:text-left">
               Copyright © {currentYear} JAZ Builders and Promoters. All Rights Reserved.
             </p>
-            <div className="flex items-center gap-3 text-xs">
+            <a
+              href="https://www.pixdotsolutions.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1 transition-all duration-300 hover:text-white hover:[text-shadow:0_1px_8px_rgba(255,255,255,0.45)]"
+            >
+              Developed by{' '}
+              <span className="font-semibold underline decoration-white/40 underline-offset-2 hover:decoration-white">
+                Pixdot
+              </span>
+            </a>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3">
               <button
                 type="button"
-                className="text-xs transition-all duration-300 hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_1px_8px_rgba(255,255,255,0.45)]"
+                className="transition-all duration-300 hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_1px_8px_rgba(255,255,255,0.45)]"
                 onClick={() => setActivePopup('privacy')}
               >
                 Privacy Policy
               </button>
-              <span>|</span>
+              <span aria-hidden="true">|</span>
               <button
                 type="button"
-                className="text-xs transition-all duration-300 hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_1px_8px_rgba(255,255,255,0.45)]"
+                className="transition-all duration-300 hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_1px_8px_rgba(255,255,255,0.45)]"
                 onClick={() => setActivePopup('terms')}
               >
                 Terms of Service

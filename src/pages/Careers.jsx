@@ -4,10 +4,13 @@ import { FiX } from 'react-icons/fi'
 import PageSEO from '../components/PageSEO'
 import HomeBuildTogetherSection from '../components/HomeBuildTogetherSection'
 import SmoothParagraph from '../components/SmoothParagraph'
-import { submitCareerApplication } from '../api'
+import { submitWeb3FormFromForm } from '../api'
+
+const WEB3FORMS_ACCESS_KEY_CAREERS = '9a405910-ad66-45df-8d08-f72fee42f121'
 
 function Careers() {
   const heroRef = useRef(null)
+  const careerFormRef = useRef(null)
   const [heroVisible, setHeroVisible] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
   const [careerForm, setCareerForm] = useState({
@@ -70,6 +73,20 @@ function Careers() {
 
   const closeApplyModal = () => {
     setSelectedJob(null)
+  }
+
+  const doSubmitCareer = async () => {
+    if (!careerFormRef.current) return
+    try {
+      await submitWeb3FormFromForm(careerFormRef.current)
+      setCareerFeedback({ type: 'success', text: 'Thank you! Your application has been submitted. We will review it and get in touch. A confirmation email has been sent to you.' })
+      setCareerForm({ full_name: '', email: '', phone: '', graduation_year: '', gender: '', experience: '', current_ctc: '', expected_ctc: '', notice_period: '', location: '' })
+      setTimeout(() => closeApplyModal(), 2500)
+    } catch (err) {
+      setCareerFeedback({ type: 'error', text: err.message || 'Something went wrong. Please try again or email your CV to us.' })
+    } finally {
+      setCareerLoading(false)
+    }
   }
 
   const AnimatedLetters = ({ text, visible }) => (
@@ -204,6 +221,9 @@ function Careers() {
             </div>
 
             <form
+              ref={careerFormRef}
+              action="https://api.web3forms.com/submit"
+              method="POST"
               className="max-h-[76vh] overflow-y-auto px-5 py-5 sm:px-8 sm:py-6"
               onSubmit={async (event) => {
                 event.preventDefault()
@@ -213,30 +233,12 @@ function Careers() {
                   return
                 }
                 setCareerLoading(true)
-                try {
-                  await submitCareerApplication({
-                    job_title: selectedJob.title,
-                    full_name: careerForm.full_name.trim(),
-                    email: careerForm.email.trim(),
-                    phone: careerForm.phone.trim(),
-                    graduation_year: careerForm.graduation_year,
-                    gender: careerForm.gender.trim(),
-                    experience: careerForm.experience,
-                    current_ctc: careerForm.current_ctc.trim(),
-                    expected_ctc: careerForm.expected_ctc.trim(),
-                    notice_period: careerForm.notice_period.trim(),
-                    location: careerForm.location.trim(),
-                  })
-                  setCareerFeedback({ type: 'success', text: 'Thank you! Your application has been submitted. We will review it and get in touch. A confirmation email has been sent to you.' })
-                  setCareerForm({ full_name: '', email: '', phone: '', graduation_year: '', gender: '', experience: '', current_ctc: '', expected_ctc: '', notice_period: '', location: '' })
-                  setTimeout(() => closeApplyModal(), 2500)
-                } catch (err) {
-                  setCareerFeedback({ type: 'error', text: err.message || 'Something went wrong. Please try again or email your CV to us.' })
-                } finally {
-                  setCareerLoading(false)
-                }
+                await doSubmitCareer()
               }}
             >
+              <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY_CAREERS} />
+              <input type="hidden" name="subject" value={`Career Application: ${selectedJob?.title ?? ''}`} />
+              <input type="hidden" name="job_title" value={selectedJob?.title ?? ''} />
               {careerFeedback && (
                 <p className={`mb-4 rounded-xl px-3 py-2 text-sm ${careerFeedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                   {careerFeedback.text}
@@ -250,6 +252,7 @@ function Careers() {
                   <input
                     id="fullName"
                     type="text"
+                    name="full_name"
                     required
                     placeholder="Enter your full name"
                     value={careerForm.full_name}
@@ -265,6 +268,7 @@ function Careers() {
                   <input
                     id="email"
                     type="email"
+                    name="email"
                     required
                     placeholder="Enter your email address"
                     value={careerForm.email}
@@ -280,6 +284,7 @@ function Careers() {
                   <input
                     id="phone"
                     type="tel"
+                    name="phone"
                     required
                     placeholder="Enter your phone number"
                     value={careerForm.phone}
@@ -295,6 +300,7 @@ function Careers() {
                   <input
                     id="graduationYear"
                     type="number"
+                    name="graduation_year"
                     min="1980"
                     max="2100"
                     required
@@ -311,6 +317,7 @@ function Careers() {
                   </label>
                   <select
                     id="gender"
+                    name="gender"
                     required
                     value={careerForm.gender}
                     onChange={(e) => setCareerForm((p) => ({ ...p, gender: e.target.value }))}
@@ -331,6 +338,7 @@ function Careers() {
                   <input
                     id="experience"
                     type="number"
+                    name="experience"
                     min="0"
                     max="60"
                     required
@@ -348,6 +356,7 @@ function Careers() {
                   <input
                     id="currentCtc"
                     type="text"
+                    name="current_ctc"
                     required
                     placeholder="e.g., 5,00,000"
                     value={careerForm.current_ctc}
@@ -363,6 +372,7 @@ function Careers() {
                   <input
                     id="expectedCtc"
                     type="text"
+                    name="expected_ctc"
                     required
                     placeholder="e.g., 7,00,000"
                     value={careerForm.expected_ctc}
@@ -378,6 +388,7 @@ function Careers() {
                   <input
                     id="noticePeriod"
                     type="text"
+                    name="notice_period"
                     required
                     placeholder="e.g., 30 days"
                     value={careerForm.notice_period}
@@ -393,6 +404,7 @@ function Careers() {
                   <input
                     id="location"
                     type="text"
+                    name="location"
                     required
                     placeholder="Enter your current location"
                     value={careerForm.location}
